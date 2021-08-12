@@ -60,7 +60,10 @@ class HistoricalDataStreamer(DataHandler):
       self.load_data(type, tickers, start, end)
 
   def get_latest_bars(self, ticker, N=1):
-    return self.tickers[ticker].bars[self.index-N+1:self.index+1]
+    start = self.index-N+1
+    if (start < 0):
+      start = 0
+    return self.tickers[ticker].bars[start:self.index+1]
 
   def update_price(self):
     if self.type == 'bars':

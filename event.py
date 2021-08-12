@@ -19,11 +19,14 @@ class SignalEvent(Event):
     Handles the event of a strategy generating a signal
     """
     
-    def __init__(self, symbol, datetime, signal_type):
+    def __init__(self, symbol, signal_type, price, timestamp=None, sl=None, tp=None):
         self.type = 'SIGNAL'
-        self.symbol = symbol
-        self.datetime = datetime
         self.signal_type = signal_type
+        self.symbol = symbol
+        self.price = price
+        self.timestamp = timestamp
+        self.sl = sl
+        self.tp = tp
 
 class OrderEvent(Event):
     """

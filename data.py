@@ -10,7 +10,7 @@ header = {
 }
 
 def injest_bars(ticker):
-  url = base_url + '/stocks/' + ticker + '/bars?timeframe=1Min&start=2021-07-12T13:30:00Z&end=2021-07-12T19:59:00Z'
+  url = base_url + '/stocks/' + ticker + '/bars?timeframe=1Min&start=2021-08-12T13:30:00Z&end=2021-08-12T19:59:00Z'
   r = requests.get(url, headers=header)
 
   for bar in r.json()['bars']:
@@ -18,7 +18,7 @@ def injest_bars(ticker):
     db.add_bar(bar_object)
 
 def print_bars():
-  bars = db.get_all_bars('2021-07-12T13:30:00Z', '2021-07-12T19:59:00Z')
+  bars = db.get_all_bars('2021-08-11T13:30:00Z', '2021-08-11T19:59:00Z')
   for bar in bars:
     print(bar)
 
