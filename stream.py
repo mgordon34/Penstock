@@ -10,6 +10,7 @@ from collections import defaultdict
 import config
 from db import DB
 from event import MarketEvent
+from log import log
 
 class OutofDataError(Exception):
   pass
@@ -44,7 +45,6 @@ class DataHandler(object):
     self.tickers = defaultdict(TickerObject)
 
   def get_latest_bars(self, ticker, N=1):
-    # print(self.tickers[ticker].bars)
     return self.tickers[ticker].bars[-N:]
   
   @abstractmethod
@@ -120,6 +120,9 @@ class LiveDataStreamer(DataHandler):
     if self.new_trade:
       self.new_trade = False
       self.events.put(MarketEvent('trade'))
+  
+  def get_price(self, symbol):
+    return self.tickers[symbol].price
 
   def on_open(self, ws):
     print("Live WS opened")
@@ -158,19 +161,19 @@ class LiveDataStreamer(DataHandler):
 
   def handle_trade(self, trade):
     try:
-      # print('Handling trade for ' + trade['S'])
+      log.debug('Handling trade for ' + trade['S'])
       trade_obj = (trade['S'], trade['p'], trade['s'], trade['t'])
       self.db.add_trade(trade_obj)
       self.tickers[trade['S']].update_price(trade['p'], trade['t'])
       self.new_trade = True
     except Exception as e:
-      print('error')
-      print(traceback.print_exc())
+      log.error('error')
+      log.error(traceback.print_exc())
 
 
   def handle_bar(self, bar):
     try:
-      # print('Handling bar for ' + bar['S'])
+      log.debug('Handling bar for ' + bar['S'])
       s = bar['S']
       bar_obj = (bar['o'], bar['h'], bar['l'], bar['c'], bar['v'], bar['t'])
       self.db.add_bar((s, *bar_obj))
