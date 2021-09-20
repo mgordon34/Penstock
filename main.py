@@ -47,5 +47,5 @@ while True:
     total_losers += result['losers']
     break
 
-print('Profit: ${:,.2f}, {} winners and {} losers'.format(total_profit, total_winners, total_losers))
+log.info('Profit: ${:,.2f}, {} winners and {} losers'.format(total_profit, total_winners, total_losers))
 quit()

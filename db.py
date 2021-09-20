@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 
 import config
+from log import log
 
 class DB(object):
   def __init__(self, db_file):
@@ -32,9 +33,9 @@ class DB(object):
     try:
       conn = sqlite3.connect(db_file, check_same_thread=False)
       conn.isolation_level = None
-      print('DB connection established version: ' + sqlite3.version)
+      log.debug('DB connection established version: ' + sqlite3.version)
     except Error as e:
-      print(e)
+      log.error(e)
     
     return conn
 
@@ -43,7 +44,7 @@ class DB(object):
       c = self.conn.cursor()
       c.execute(create_table_sql)
     except Error as e:
-      print(e)
+      log.error(e)
 
   def add_trade(self, trade):
     sql = '''INSERT INTO trades(ticker,price,size,timestamp)
@@ -70,9 +71,9 @@ class DB(object):
       for bar in bars:
         cur.execute(sql, bar)
       cur.execute('commit')
-      print(cur.lastrowid)
+      log.debug(cur.lastrowid)
     except Error as e:
-      print(e)
+      log.error(e)
       cur.execute('rollback')
 
   
