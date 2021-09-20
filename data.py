@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 from db import DB
 
@@ -9,18 +10,27 @@ header = {
   'APCA-API-SECRET-KEY': 'QDwHP2TNze94d8Wc1Dg1QDpoJCQq1JDG1nX92wxN'
 }
 
-def injest_bars(ticker):
-  url = base_url + '/stocks/' + ticker + '/bars?timeframe=1Min&start=2021-08-12T13:30:00Z&end=2021-08-12T19:59:00Z'
-  r = requests.get(url, headers=header)
+def injest_bars(symbols, dates):
+  for date in dates:
+    bars = []
+    for symbol in symbols:
 
-  for bar in r.json()['bars']:
-    bar_object = (ticker, bar['o'], bar['h'], bar['l'], bar['c'], bar['v'], bar['t'])
-    db.add_bar(bar_object)
+      url = base_url + '/stocks/' + symbol + '/bars?timeframe=1Min&start=' +date+ 'T13:30:00Z&end=' + date + 'T19:59:00Z'
+      r = requests.get(url, headers=header)
+
+      try:
+        for bar in r.json()['bars']:
+          bar_object = (symbol, bar['o'], bar['h'], bar['l'], bar['c'], bar['v'], bar['t'])
+          bars.append(bar_object)
+      except:
+        print(r.text)
+    db.bulk_add_bars(bars)
 
 def print_bars():
-  bars = db.get_all_bars('2021-08-11T13:30:00Z', '2021-08-11T19:59:00Z')
+  bars = db.get_all_bars('2021-08-13T13:30:00Z', '2021-08-13T19:59:00Z')
   for bar in bars:
     print(bar)
+  print(len(bars))
 
 db = DB(DB_FILE)
 # sql_create_bars_table =  """CREATE TABLE IF NOT EXISTS bars (
@@ -36,12 +46,21 @@ db = DB(DB_FILE)
 # db.create_table(sql_create_bars_table)
 
 
-TICKERS = ['SPY', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'WKHS', 'BIDU', 'ROKU', 'AMD', 'NVDA',
+SYMBOLS = ['SPY', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'WKHS', 'BIDU', 'ROKU', 'AMD', 'NVDA',
 'TWTR', 'FB', 'NFLX', 'CRSR', 'AMC', 'GME', 'RBLX', 'ATVI', 'BYND', 'JBLU', 'DAL', 'CCL', 
 'SNOW', 'SHOP', 'TLRY', 'MRNA', 'PFE', 'DFS', 'WFC', 'JPM', 'RKT', 'WMT', 'F', 'V', 'IYE', 
 'XOM']
-for ticker in TICKERS:
-  injest_bars(ticker)
+curr_date = datetime.datetime.strptime('2021-08-30', '%Y-%m-%d').date()
+dates = []
+for i in range(1,8):
+  if curr_date.isoweekday() in range(1,6):
+    dates.append(curr_date.strftime('%Y-%m-%d'))
+  curr_date = curr_date + datetime.timedelta(days=1)
+print(len(dates))
+
+# TICKERS = ['TSLA']
+injest_bars(SYMBOLS, dates)
+# print_bars()
 
 # tickers = ['BIDU']
 # a = db.get_bars(tickers, '2021-07-12T13:30:00Z', '2021-07-12T19:59:00Z')

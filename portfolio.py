@@ -29,21 +29,21 @@ class Portfolio(object):
     symbol = event.symbol
     if event.signal_type == 'BUY':
       if len(self.positions) >= self.max_positions:
-        logging.info('Max positions reached, not buying {}'.format(event.symbol))
+        logging.debug('Max positions reached, not buying {}'.format(event.symbol))
         return
       if self.has_position(event.symbol):
-        logging.info('Position already open for {}, not buying'.format(event.symbol))
+        logging.debug('Position already open for {}, not buying'.format(event.symbol))
         return
       num_shares = self.calculate_shares(event.price)
       new_pos = TradeObject(event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
       self.positions.append(new_pos)
-      logging.info('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
+      logging.debug('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
     if event.signal_type == 'CLOSE':
       pos = self.remove_position(event.symbol, event.price, event.timestamp)
       if pos:
-        logging.info('Closing position for {} at {}'.format(event.symbol, event.price))
+        logging.debug('Closing position for {} at {}'.format(event.symbol, event.price))
       else:
-        logging.info('No position open for {}, no need to close'.format(event.symbol))
+        logging.debug('No position open for {}, no need to close'.format(event.symbol))
 
   def calculate_performance(self):
     profit = 0
@@ -54,11 +54,17 @@ class Portfolio(object):
       if trade_p >= 0:
         winners += 1
       else:
+        logging.info('{} - bought at {}, stopped out at {}'.format(trade.symbol, trade.entry, trade.sl))
         losers += 1
       profit += trade_p * trade.shares
 
     logging.info('${:,.2f} made in {} trades. {} winners and {} losers'.format(profit, winners+losers, winners, losers))
     logging.info('Total ROI: {:.2%}'.format(profit/self.starting_balance))
+    return {
+      'profit': profit,
+      'winners': winners,
+      'losers': losers
+    }
 
   # Helper function to determine if portfolio already has a position in specified symbol
   def has_position(self, symbol):

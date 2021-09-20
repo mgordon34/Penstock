@@ -4,14 +4,25 @@ from portfolio import Portfolio
 import queue
 from event import *
 import config
+from log import log
 
 events = queue.Queue()
-# stream = LiveDataStreamer(events)
-stream = HistoricalDataStreamer(events, 'bars', config.tickers, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
+if config.type == 'historical':
+  stream = HistoricalDataStreamer(events, 'bars', config.tickers, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
+elif config.type == 'live':
+  stream = LiveDataStreamer(events)
+  stream.run()
 strat = ThreeBarStrategy(events, stream)
 portfolio = Portfolio(events, config.starting_balance, config.pct_buying_power, config.max_positions)
 
-# stream.run()
+total_profit = 0
+total_winners = 0 
+total_losers = 0
+balance = config.starting_balance
+# for date in config.dates:
+#   stream = HistoricalDataStreamer(events, 'bars', config.tickers, date+'T13:30:00Z', date+'T19:59:00Z')
+#   strat = ThreeBarStrategy(events, stream)
+#   portfolio = Portfolio(events, balance, config.pct_buying_power, config.max_positions)
 
 while True:
   try:
@@ -28,6 +39,13 @@ while True:
         elif event.type == 'SIGNAL':
           portfolio.handle_signal_event(event)
   except OutofDataError:
-    print('Streamer ran out of bars, finishing...')
-    portfolio.calculate_performance()
-    quit()
+    log.info('Streamer ran out of bars, finishing...')
+    result = portfolio.calculate_performance()
+    balance += result['profit']
+    total_profit += result['profit']
+    total_winners += result['winners']
+    total_losers += result['losers']
+    break
+
+print('Profit: ${:,.2f}, {} winners and {} losers'.format(total_profit, total_winners, total_losers))
+quit()

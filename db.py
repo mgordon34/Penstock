@@ -31,6 +31,7 @@ class DB(object):
     conn = None
     try:
       conn = sqlite3.connect(db_file, check_same_thread=False)
+      conn.isolation_level = None
       print('DB connection established version: ' + sqlite3.version)
     except Error as e:
       print(e)
@@ -59,6 +60,21 @@ class DB(object):
     cur.execute(sql, bar)
     self.conn.commit()
     return cur.lastrowid
+
+  def bulk_add_bars(self, bars):
+    sql = '''INSERT INTO bars(ticker,open,high,low,close,volume,timestamp)
+              VALUES(?,?,?,?,?,?,?)'''
+    cur = self.conn.cursor()
+    try:
+      cur.execute('begin')
+      for bar in bars:
+        cur.execute(sql, bar)
+      cur.execute('commit')
+      print(cur.lastrowid)
+    except Error as e:
+      print(e)
+      cur.execute('rollback')
+
   
   def get_bars(self, tickers, start, end):
     ticker_str = ''

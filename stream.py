@@ -76,25 +76,27 @@ class HistoricalDataStreamer(DataHandler):
   def load_data(self, type, tickers, start, end):
     if type == 'bars':
       self.len = 0
+      dbdata = self.db.get_bars(tickers, start, end)
       for ticker in tickers:
-        bars = self.fix_bars(self.db.get_bars([ticker], start, end))
+        bars = self.fix_bars(ticker, dbdata)
         self.tickers[ticker].bars = bars
         if len(bars) > self.len:
           self.len = len(bars)
       self.data.queue = queue.deque(bars)
   
-  def fix_bars(self, bars):
+  def fix_bars(self, symbol, bars):
     ret = []
     for bar in bars:
-      a = {
-        'o': bar[2],
-        'h': bar[3],
-        'l': bar[4],
-        'c': bar[5],
-        'v': bar[6],
-        't': bar[7],
-      }
-      ret.append(a)
+      if (bar[1] == symbol):
+        a = {
+          'o': bar[2],
+          'h': bar[3],
+          'l': bar[4],
+          'c': bar[5],
+          'v': bar[6],
+          't': bar[7],
+        }
+        ret.append(a)
     return ret
 
 
@@ -106,6 +108,7 @@ class LiveDataStreamer(DataHandler):
     self.wst.daemon = True
     self.new_bar = False
     self.new_trade = False
+    self.bars_to_add = []
 
   def update_price(self):
     if self.new_bar and (time() - self.new_bar) > 2:

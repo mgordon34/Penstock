@@ -3,9 +3,8 @@ from datetime import datetime
 from event import SignalEvent
 import config
 
-import logging
+from log import log
 
-logging.basicConfig(level=logging.INFO)
 
 def diff_minutes(old, new):
   old = datetime.strptime(old, "%Y-%m-%dT%H:%M:%SZ")
@@ -41,9 +40,9 @@ class ThreeBarStrategy(object):
         self.calculate_signal(ticker)
     elif event.mkt_type == 'trade':
       return
-      logging.debug('strat found a trade')
+      log.debug('strat found a trade')
       for ticker in self.subscriptions:
-        logging.debug('{} price: {}'.format(ticker, self.data.tickers[ticker].price))
+        log.debug('{} price: {}'.format(ticker, self.data.tickers[ticker].price))
     return
 
   def calculate_signal(self, ticker):
@@ -54,7 +53,7 @@ class ThreeBarStrategy(object):
 
     # Skip strategy calls if ticker is out of bars
     if len(bars) == 0 or not curr_bar:
-      logging.debug('{} is out of bars, not running'.format(ticker))
+      log.debug('{} is out of bars, not running'.format(ticker))
       return
     curr_bar = curr_bar[0]
 
@@ -66,9 +65,9 @@ class ThreeBarStrategy(object):
 
     # Make sure ticker has reached maturity before generating signals
     if len(bars) < lookback:
-      logging.debug('{} has not reached lookback length({}), not running'.format(ticker, lookback))
+      log.debug('{} has not reached lookback length({}), not running'.format(ticker, lookback))
       return
-    # logging.debug('{} has reached maturity, running strat: {}'.format(ticker, bars))
+    # log.debug('{} has reached maturity, running strat: {}'.format(ticker, bars))
 
     # See if position needs to be closed
     if self.positions[ticker]:
@@ -82,18 +81,19 @@ class ThreeBarStrategy(object):
     #calculate ignition
     diff = diff_minutes(self.tickers[ticker].hod[1], curr_bar['t'])
     if diff == 0:
-      logging.debug('new high for {}: {}'.format(ticker, curr_bar))
+      log.debug('new high for {}: {}'.format(ticker, curr_bar))
       qual = True
       for i in range(len(bars)-3, len(bars)):
         if bars[i]['h'] < bars[i-1]['h']:
           qual = False
       if qual:
-        logging.debug('[{}]Ignition activated for {}'.format(curr_bar['t'], ticker))
+        log.debug('[{}]Ignition activated for {}'.format(curr_bar['t'], ticker))
         dist = curr_bar['h'] - find_lowest(bars)[0]
-        self.tickers[ticker].ignition = {'h': curr_bar['h'], 't': curr_bar['t'], 'dist': dist}
-        self.tickers[ticker].pullback = False
+        if dist > 0:
+          self.tickers[ticker].ignition = {'h': curr_bar['h'], 't': curr_bar['t'], 'dist': dist}
+          self.tickers[ticker].pullback = False
     # else:
-    #   logging.debug('no high({}) for {}: {}'.format(self.tickers[ticker].hod[0], ticker, curr_bar['t']))
+    #   log.debug('no high({}) for {}: {}'.format(self.tickers[ticker].hod[0], ticker, curr_bar['t']))
     
     if self.tickers[ticker].ignition and diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t']) > 0:
       #calculate if signal should be generated
@@ -103,11 +103,11 @@ class ThreeBarStrategy(object):
         tp = self.tickers[ticker].ignition['h']
         # tp = entry + entry * .005
         # tp = max(entry + entry * .005, self.tickers[ticker].ignition['h'])
-        logging.debug('-------------Trade Found-----------')
-        logging.info('[{}]Signal triggered for {} at {}'.format(curr_bar['t'], ticker, entry))
-        logging.debug('[{}]Stoploss set at {}'.format(curr_bar['t'], sl))
-        logging.debug('[{}]Take Profit set at {}'.format(curr_bar['t'], tp))
-        logging.debug('-----------------------------------')
+        log.debug('-------------Trade Found-----------')
+        log.debug('[{}]Signal triggered for {} at {}'.format(curr_bar['t'], ticker, entry))
+        log.debug('[{}]Stoploss set at {}'.format(curr_bar['t'], sl))
+        log.debug('[{}]Take Profit set at {}'.format(curr_bar['t'], tp))
+        log.debug('-----------------------------------')
         self.tickers[ticker].ignition = False
         self.tickers[ticker].pullback = False
         if not self.positions[ticker]:
@@ -120,22 +120,22 @@ class ThreeBarStrategy(object):
 
       #calculate if pullback should be activated
       if curr_bar['h'] < bars[len(bars)-2]['h'] and curr_bar['c'] < curr_bar['o']:
-        logging.debug('[{}]Pullback activated for {}'.format(curr_bar['t'], ticker))
+        log.debug('[{}]Pullback activated for {}'.format(curr_bar['t'], ticker))
         self.tickers[ticker].pullback = True
 
       # calculate if ignition/pullback should be removed
       diff = diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t'])
       pb_len = self.tickers[ticker].ignition['h'] - curr_bar['l']
       if (diff > 4):
-        logging.debug('[{}]Ignition/pullback removed for {}: ignition too old'.format(curr_bar['t'], ticker))
+        log.debug('[{}]Ignition/pullback removed for {}: ignition too old'.format(curr_bar['t'], ticker))
         self.tickers[ticker].ignition = False
         self.tickers[ticker].pullback = False
       elif (pb_len/self.tickers[ticker].ignition['dist'] > .75):
-        logging.debug('[{}]Ignition/pullback removed for {}: pullback too large'.format(curr_bar['t'], ticker))
-        logging.debug(self.tickers[ticker].ignition['dist'])
-        logging.debug(pb_len)
-        logging.debug(self.tickers[ticker].ignition['h'])
-        logging.debug(curr_bar['l'])
+        log.debug('[{}]Ignition/pullback removed for {}: pullback too large'.format(curr_bar['t'], ticker))
+        log.debug(self.tickers[ticker].ignition['dist'])
+        log.debug(pb_len)
+        log.debug(self.tickers[ticker].ignition['h'])
+        log.debug(curr_bar['l'])
         self.tickers[ticker].ignition = False
         self.tickers[ticker].pullback = False
 
