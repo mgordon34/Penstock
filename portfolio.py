@@ -1,8 +1,8 @@
-import logging
 import config
 from event import SignalEvent
 
-logging.basicConfig(level=logging.INFO)
+import logging
+log = logging.getLogger(__name__)
 
 class TradeObject(object):
   def __init__(self, symbol, shares, entry, sl, tp, start):

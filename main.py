@@ -4,7 +4,9 @@ from portfolio import Portfolio
 import queue
 from event import *
 import config
-from log import log
+
+import logging
+log = logging.getLogger(__name__)
 
 events = queue.Queue()
 stream = None

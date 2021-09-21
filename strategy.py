@@ -3,7 +3,8 @@ from datetime import datetime
 from event import SignalEvent
 import config
 
-from log import log
+import logging
+log = logging.getLogger(__name__)
 
 
 def diff_minutes(old, new):
@@ -155,10 +156,11 @@ class LiveThreeBarStrategy(object):
 
   def handle_mkt_event(self, event):
     if event.mkt_type == 'bars':
+      log.debug('handling bars event')
       for symbol in self.data.tickers:
         self.calculate_signal(symbol)
     elif event.mkt_type == 'trade':
-      log.debug('strat found a trade')
+      log.debug('handling trade event')
       for symbol in self.subscriptions:
         log.debug('{} price: {}'.format(symbol, self.data.get_price(symbol)))
         self.calculate_trade(symbol)
@@ -166,7 +168,7 @@ class LiveThreeBarStrategy(object):
 
   def calculate_trade(self, symbol):
     price = self.data.get_price(symbol)
-    time = datetime.now().format()
+    time = datetime.now().isoformat()
 
     if self.positions[symbol]:
       # See if position needs to be closed
@@ -240,7 +242,7 @@ class LiveThreeBarStrategy(object):
           'sl': bars[lookback-1]['l'],
           'tp': self.tickers[ticker].ignition['h']
         }
-        self.data.subscribe_to_ticker(ticker)
+        self.data.subscribe_to_ticker([ticker])
 
       # calculate if ignition/pullback should be removed
       diff = diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t'])
@@ -250,7 +252,7 @@ class LiveThreeBarStrategy(object):
         self.tickers[ticker].ignition = False
         self.tickers[ticker].pullback = False
         self.subscriptions[ticker] = None
-        self.data.unsubscribe_to_ticker(ticker)
+        self.data.unsubscribe_to_ticker([ticker])
       elif (pb_len/self.tickers[ticker].ignition['dist'] > .75):
         log.debug('[{}]Ignition/pullback removed for {}: pullback too large'.format(curr_bar['t'], ticker))
         log.debug(self.tickers[ticker].ignition['dist'])

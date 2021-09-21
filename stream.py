@@ -10,7 +10,9 @@ from collections import defaultdict
 import config
 from db import DB
 from event import MarketEvent
-from log import log
+
+import logging
+log = logging.getLogger(__name__)
 
 class OutofDataError(Exception):
   pass
@@ -125,12 +127,12 @@ class LiveDataStreamer(DataHandler):
     return self.tickers[symbol].price
 
   def on_open(self, ws):
-    print("Live WS opened")
+    log.debug("Live WS opened")
     auth_data = {"action": "auth", "key": config.api_key, "secret": config.api_secret}
 
     ws.send(json.dumps(auth_data))
 
-    subscribe_message = {"action": "subscribe", "trades": ["AAPL","TSLA","BIDU","ROKU"], "bars": config.tickers}
+    subscribe_message = {"action": "subscribe", "bars": config.tickers}
 
     ws.send(json.dumps(subscribe_message))
 
@@ -143,8 +145,6 @@ class LiveDataStreamer(DataHandler):
 
   def subscribe_to_ticker(self, tickers):
     subscribe_message = {"action": "subscribe", "trades": tickers}
-    for ticker in tickers:
-      self.prices[ticker]
     self.ws.send(json.dumps(subscribe_message))
 
   def unsubscribe_to_ticker(self, tickers):

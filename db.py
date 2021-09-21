@@ -2,7 +2,9 @@ import sqlite3
 from sqlite3 import Error
 
 import config
-from log import log
+
+import logging
+log = logging.getLogger(__name__)
 
 class DB(object):
   def __init__(self, db_file):
