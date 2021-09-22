@@ -1,1 +1,2 @@
 alpaca-trade-api
+yfinance

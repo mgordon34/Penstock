@@ -2,12 +2,15 @@ from collections import defaultdict
 from datetime import datetime
 from event import SignalEvent
 import config
+import utils.stock_data as stock_data
 
 import logging
 log = logging.getLogger(__name__)
 
 
 def diff_minutes(old, new):
+  if not old:
+    return -1
   old = datetime.strptime(old, "%Y-%m-%dT%H:%M:%SZ")
   new = datetime.strptime(new, "%Y-%m-%dT%H:%M:%SZ")
   ret = abs((old-new).total_seconds()/60)
@@ -34,6 +37,9 @@ class ThreeBarStrategy(object):
     self.events = events
     self.data = data
     self.positions = defaultdict(dict)
+
+    for symbol in self.data.tickers:
+      self.tickers[symbol].hod = (stock_data.get_last_close(symbol), None)
 
   def handle_mkt_event(self, event):
     if event.mkt_type == 'bars':
@@ -162,9 +168,18 @@ class LiveThreeBarStrategy(object):
     elif event.mkt_type == 'trade':
       log.debug('handling trade event')
       for symbol in self.subscriptions:
-        log.debug('{} price: {}'.format(symbol, self.data.get_price(symbol)))
-        self.calculate_trade(symbol)
+        if self.subscriptions[symbol] and self.data.get_price(symbol):
+          log.debug('{} price: {}'.format(symbol, self.data.get_price(symbol)))
+          self.calculate_trade(symbol)
     return
+
+  def unsubscribe(self, symbol):
+        self.tickers[symbol].ignition = False
+        self.tickers[symbol].pullback = False
+        self.positions.pop(symbol, None)
+        self.subscriptions.pop(symbol, None)
+        self.data.unsubscribe_to_ticker([symbol])
+
 
   def calculate_trade(self, symbol):
     price = self.data.get_price(symbol)
@@ -172,25 +187,27 @@ class LiveThreeBarStrategy(object):
 
     if self.positions[symbol]:
       # See if position needs to be closed
+      log.debug(f'{symbol} price: {price}')
+      log.debug(f'{symbol} stoploss: {self.positions[symbol]["sl"]}')
       if price < self.positions[symbol]['sl']:
-        self.positions[symbol] = None
+        self.unsubscribe(symbol)
         self.events.put(SignalEvent(symbol, 'CLOSE', price, time))
       elif price > self.positions[symbol]['tp']:
-        self.positions[symbol] = None
+        self.unsubscribe(symbol)
         self.events.put(SignalEvent(symbol, 'CLOSE', price, time))
     else:
       # See if signal should be generated
       if price > self.subscriptions[symbol]['entry']:
         self.tickers[symbol].ignition = False
         self.tickers[symbol].pullback = False
-        sl = self.subscriptions[symbol]['sl'],
-        tp = self.subscriptions[symbol]['tp'],
+        sl = self.subscriptions[symbol]['sl']
+        tp = self.subscriptions[symbol]['tp']
         self.positions[symbol] = {
           'sl': sl,
           'tp': tp
         }
 
-        log.debug(f'Buy signal triggered for {symbol}: at {price}')
+        log.debug(f'Buy signal triggered for {symbol}: at {price}, sl: {sl}, tp: {tp}')
         self.events.put(SignalEvent(symbol, 'BUY', price, time, sl, tp))
 
   def calculate_signal(self, ticker):
@@ -249,17 +266,11 @@ class LiveThreeBarStrategy(object):
       pb_len = self.tickers[ticker].ignition['h'] - curr_bar['l']
       if (diff > 4):
         log.debug('[{}]Ignition/pullback removed for {}: ignition too old'.format(curr_bar['t'], ticker))
-        self.tickers[ticker].ignition = False
-        self.tickers[ticker].pullback = False
-        self.subscriptions[ticker] = None
-        self.data.unsubscribe_to_ticker([ticker])
+        self.unsubscribe(ticker)
       elif (pb_len/self.tickers[ticker].ignition['dist'] > .75):
         log.debug('[{}]Ignition/pullback removed for {}: pullback too large'.format(curr_bar['t'], ticker))
         log.debug(self.tickers[ticker].ignition['dist'])
         log.debug(pb_len)
         log.debug(self.tickers[ticker].ignition['h'])
         log.debug(curr_bar['l'])
-        self.tickers[ticker].ignition = False
-        self.tickers[ticker].pullback = False
-        self.subscriptions[ticker] = None
-        self.data.unsubscribe_to_ticker(ticker)
+        self.unsubscribe(ticker)

@@ -1,7 +1,9 @@
 import requests
 import datetime
+import logging
 
 from db import DB
+logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 
 DB_FILE = '/Users/matt/git/trading/trades.db'
 base_url = 'https://data.alpaca.markets/v2'
@@ -50,9 +52,9 @@ SYMBOLS = ['SPY', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'WKHS', 'BIDU', 'ROKU', 'AMD',
 'TWTR', 'FB', 'NFLX', 'CRSR', 'AMC', 'GME', 'RBLX', 'ATVI', 'BYND', 'JBLU', 'DAL', 'CCL', 
 'SNOW', 'SHOP', 'TLRY', 'MRNA', 'PFE', 'DFS', 'WFC', 'JPM', 'RKT', 'WMT', 'F', 'V', 'IYE', 
 'XOM']
-curr_date = datetime.datetime.strptime('2021-08-30', '%Y-%m-%d').date()
+curr_date = datetime.datetime.strptime('2021-09-20', '%Y-%m-%d').date()
 dates = []
-for i in range(1,8):
+for i in range(1,4):
   if curr_date.isoweekday() in range(1,6):
     dates.append(curr_date.strftime('%Y-%m-%d'))
   curr_date = curr_date + datetime.timedelta(days=1)

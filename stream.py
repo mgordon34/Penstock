@@ -114,9 +114,6 @@ class LiveDataStreamer(DataHandler):
 
   def update_price(self):
     if self.new_bar and (time() - self.new_bar) > 2:
-      print(time())
-      print(self.new_bar)
-      print(time() - self.new_bar)
       self.new_bar = False
       self.events.put(MarketEvent('bars'))
     if self.new_trade:
@@ -141,7 +138,7 @@ class LiveDataStreamer(DataHandler):
     self.handle_message(message)
 
   def on_close(self, ws):
-    print("closed connection")
+    log.debug("closed connection")
 
   def subscribe_to_ticker(self, tickers):
     subscribe_message = {"action": "subscribe", "trades": tickers}
@@ -185,12 +182,10 @@ class LiveDataStreamer(DataHandler):
         't': bar['t']
       }
       self.tickers[s].add_bar(b)
-      if not self.new_bar:
-        print('new bar is here')
       self.new_bar = time()
     except Exception as e:
-      print('error')
-      print(traceback.print_exc())
+      log.error('error')
+      log.error(traceback.print_exc())
 
   def run(self):
     self.wst.start()
