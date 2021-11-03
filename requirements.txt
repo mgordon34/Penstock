@@ -1,2 +1,3 @@
 alpaca-trade-api
 yfinance
+pytest

@@ -13,7 +13,7 @@ events = queue.Queue()
 stream = None
 strat = None
 if config.type == 'historical':
-  stream = HistoricalDataStreamer(events, 'bars', config.tickers, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
+  stream = HistoricalDataStreamer(events, 'bars', config.symbols, '2021-10-25:30:00Z', '2021-10-29:59:00Z')
   strat = ThreeBarStrategy(events, stream)
 elif config.type == 'live':
   stream = LiveDataStreamer(events)
@@ -27,7 +27,7 @@ total_losers = 0
 balance = config.starting_balance
 
 for date in config.dates:
-  stream = HistoricalDataStreamer(events, 'bars', config.tickers, date+'T13:30:00Z', date+'T19:59:00Z')
+  stream = HistoricalDataStreamer(events, 'bars', config.symbols, date+'T13:30:00Z', date+'T19:59:00Z')
   strat = ThreeBarStrategy(events, stream)
   portfolio = Portfolio(events, balance, config.pct_buying_power, config.max_positions)
 

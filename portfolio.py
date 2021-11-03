@@ -27,6 +27,7 @@ class Portfolio(object):
 
   def handle_signal_event(self, event):
     symbol = event.symbol
+
     if event.signal_type == 'BUY':
       if len(self.positions) >= self.max_positions:
         logging.debug('Max positions reached, not buying {}'.format(event.symbol))
@@ -38,6 +39,7 @@ class Portfolio(object):
       new_pos = TradeObject(event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
       self.positions.append(new_pos)
       logging.debug('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
+
     if event.signal_type == 'CLOSE':
       pos = self.remove_position(event.symbol, event.price, event.timestamp)
       if pos:

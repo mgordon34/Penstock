@@ -129,7 +129,7 @@ class LiveDataStreamer(DataHandler):
 
     ws.send(json.dumps(auth_data))
 
-    subscribe_message = {"action": "subscribe", "bars": config.tickers}
+    subscribe_message = {"action": "subscribe", "bars": config.symbols}
 
     ws.send(json.dumps(subscribe_message))
 

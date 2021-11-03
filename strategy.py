@@ -38,8 +38,8 @@ class ThreeBarStrategy(object):
     self.data = data
     self.positions = defaultdict(dict)
 
-    for symbol in self.data.tickers:
-      self.tickers[symbol].hod = (stock_data.get_last_close(symbol), None)
+    # for symbol in self.data.tickers:
+    #   self.tickers[symbol].hod = (stock_data.get_last_close(symbol), None)
 
   def handle_mkt_event(self, event):
     if event.mkt_type == 'bars':
