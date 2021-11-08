@@ -2,14 +2,15 @@ import requests
 import datetime
 import logging
 
+import config
 from db import DB
 logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 
 DB_FILE = '/Users/matt/git/trading/trades.db'
 base_url = 'https://data.alpaca.markets/v2'
 header = {
-  'APCA-API-KEY-ID': 'PK6QQSCLGG19AYT9O9G1',
-  'APCA-API-SECRET-KEY': 'QDwHP2TNze94d8Wc1Dg1QDpoJCQq1JDG1nX92wxN'
+  'APCA-API-KEY-ID': config.api_key,
+  'APCA-API-SECRET-KEY': config.api_secret
 }
 
 def injest_bars(symbols, dates):
