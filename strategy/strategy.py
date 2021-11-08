@@ -1,11 +1,12 @@
 from collections import defaultdict
 from datetime import datetime
+import logging
 
 import common.config as config
 import common.utils.stock_data as stock_data
 from event import SignalEvent
+from strategy import BaseStrategy
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -24,7 +25,7 @@ def find_lowest(bars):
       low = (bar['l'], bar['t'])
   return low
 
-class ThreeBarTickerObject(object):
+class ThreeBarTickerObject(BaseStrategy):
   def __init__(self):
     self.ignition = False
     self.pullback = False
@@ -153,7 +154,7 @@ class ThreeBarStrategy(object):
     return
 
 
-class LiveThreeBarStrategy(object):
+class LiveThreeBarStrategy(BaseStrategy):
   def __init__(self, events, data):
     self.subscriptions = {}
     self.tickers = defaultdict(ThreeBarTickerObject)
