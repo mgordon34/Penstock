@@ -1,8 +1,9 @@
 from collections import defaultdict
 from datetime import datetime
+
+import common.config as config
+import common.utils.stock_data as stock_data
 from event import SignalEvent
-import config
-import utils.stock_data as stock_data
 
 import logging
 log = logging.getLogger(__name__)

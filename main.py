@@ -3,7 +3,7 @@ from strategy import ThreeBarStrategy, LiveThreeBarStrategy
 from portfolio import Portfolio
 import queue
 from event import *
-import config
+import common.config as config
 
 import logging
 log = logging.getLogger(__name__)

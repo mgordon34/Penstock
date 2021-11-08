@@ -2,7 +2,7 @@ import requests
 import datetime
 import logging
 
-import config
+import common.config as config
 from db import DB
 logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 

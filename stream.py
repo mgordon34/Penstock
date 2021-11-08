@@ -7,7 +7,7 @@ import queue
 from time import sleep, time
 from collections import defaultdict
 
-import config
+import common.config as config
 from db import DB
 from event import MarketEvent
 

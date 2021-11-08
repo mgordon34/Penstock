@@ -1,4 +1,4 @@
-import config
+import common.config as config
 from event import SignalEvent
 
 import logging

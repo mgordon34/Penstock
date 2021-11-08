@@ -1,7 +1,7 @@
-import config
 import pytest
 import queue
 
+import common.config as config
 from event import *
 from db import DB
 from portfolio import Portfolio
