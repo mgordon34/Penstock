@@ -1,7 +1,5 @@
 from abc import abstractmethod
 
-from common.models import BarObject
-
 class BaseStrategy(object):
 
     @abstractmethod

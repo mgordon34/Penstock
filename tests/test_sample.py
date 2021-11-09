@@ -6,7 +6,7 @@ from event import *
 from db import DB
 from portfolio import Portfolio
 from stream import HistoricalDataStreamer, LiveDataStreamer, OutofDataError
-from strategy import ThreeBarStrategy, LiveThreeBarStrategy
+from strategy import HistoricalThreeBarStrategy, LiveThreeBarStrategy
 import tests.utils as utils
 
 
@@ -28,7 +28,7 @@ class TestSample:
   def test_end_to_end(self):
     events = queue.Queue()
     stream = HistoricalDataStreamer(events, 'bars', config.symbols, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
-    strat = ThreeBarStrategy(events, stream)
+    strat = HistoricalThreeBarStrategy(events, stream)
     portfolio = Portfolio(events, 30000, 3*.9, 1)
 
     total_profit = 0
@@ -44,7 +44,7 @@ class TestSample:
 
     for date in dates:
       stream = HistoricalDataStreamer(events, 'bars', symbols, date+'T13:30:00Z', date+'T19:59:00Z')
-      strat = ThreeBarStrategy(events, stream)
+      strat = HistoricalThreeBarStrategy(events, stream)
       portfolio = Portfolio(events, balance, 3*.9, 1)
 
       while True:

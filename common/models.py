@@ -1,5 +1,5 @@
 
-class BarObject(object):
+class Bar(object):
     def __init__(self, _open, high, low, close):
         self.open = _open
         self.high = high,

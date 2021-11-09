@@ -1,2 +1,3 @@
 from strategy.base_strategy import BaseStrategy
-from strategy.strategy import *
+from strategy.historical_three_bar_strat import HistoricalThreeBarStrategy
+from strategy.live_three_bar_strat import LiveThreeBarStrategy

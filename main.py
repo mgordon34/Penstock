@@ -1,5 +1,5 @@
 from stream import HistoricalDataStreamer, LiveDataStreamer, OutofDataError
-from strategy import ThreeBarStrategy, LiveThreeBarStrategy
+from strategy import HistoricalThreeBarStrategy, LiveThreeBarStrategy
 from portfolio import Portfolio
 import queue
 from event import *
@@ -14,7 +14,7 @@ stream = None
 strat = None
 if config.type == 'historical':
   stream = HistoricalDataStreamer(events, 'bars', config.symbols, '2021-10-25:30:00Z', '2021-10-29:59:00Z')
-  strat = ThreeBarStrategy(events, stream)
+  strat = HistoricalThreeBarStrategy(events, stream)
 elif config.type == 'live':
   stream = LiveDataStreamer(events)
   strat = LiveThreeBarStrategy(events, stream)
