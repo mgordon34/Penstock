@@ -26,25 +26,24 @@ total_winners = 0
 total_losers = 0
 balance = config.starting_balance
 
-for date in config.dates:
-  stream = HistoricalDataStreamer(events, 'bars', config.symbols, date+'T13:30:00Z', date+'T19:59:00Z')
-  strat = ThreeBarStrategy(events, stream)
-  portfolio = Portfolio(events, balance, config.pct_buying_power, config.max_positions)
+# for date in config.dates:
+#   stream = HistoricalDataStreamer(events, 'bars', config.symbols, date+'T13:30:00Z', date+'T19:59:00Z')
+#   strat = ThreeBarStrategy(events, stream)
+#   portfolio = Portfolio(events, balance, config.pct_buying_power, config.max_positions)
 
-  while True:
+while True:
     try:
-      stream.update_price()
-
-      while True:
-        try:
-          event = events.get(False)
-        except queue.Empty:
-          break
-        else:
-          if event.type == 'MARKET':
-            strat.handle_mkt_event(event)
-          elif event.type == 'SIGNAL':
-            portfolio.handle_signal_event(event)
+        stream.update_price()
+        while True:
+            try:
+                event = events.get(False)
+            except queue.Empty:
+                break
+            else:
+                if event.type == 'MARKET':
+                    strat.handle_mkt_event(event)
+                elif event.type == 'SIGNAL':
+                    portfolio.handle_signal_event(event)
     except OutofDataError:
       log.info('Streamer ran out of bars, finishing...')
       result = portfolio.calculate_performance()

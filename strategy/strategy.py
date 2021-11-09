@@ -169,7 +169,7 @@ class LiveThreeBarStrategy(BaseStrategy):
         self.calculate_signal(symbol)
     elif event.mkt_type == 'trade':
       log.debug('handling trade event')
-      for symbol in self.subscriptions:
+      for symbol in list(self.subscriptions):
         if self.subscriptions[symbol] and self.data.get_price(symbol):
           log.debug('{} price: {}'.format(symbol, self.data.get_price(symbol)))
           self.calculate_trade(symbol)

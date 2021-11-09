@@ -38,12 +38,12 @@ class Portfolio(object):
       num_shares = self.calculate_shares(event.price)
       new_pos = TradeObject(event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
       self.positions.append(new_pos)
-      logging.debug('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
+      logging.info('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
 
     if event.signal_type == 'CLOSE':
       pos = self.remove_position(event.symbol, event.price, event.timestamp)
       if pos:
-        logging.debug('Closing position for {} at {}'.format(event.symbol, event.price))
+        logging.info('Closing position for {} at {}'.format(event.symbol, event.price))
       else:
         logging.debug('No position open for {}, no need to close'.format(event.symbol))
 
@@ -56,7 +56,6 @@ class Portfolio(object):
       if trade_p >= 0:
         winners += 1
       else:
-        logging.info('{} - bought at {}, stopped out at {}'.format(trade.symbol, trade.entry, trade.sl))
         losers += 1
       profit += trade_p * trade.shares
 

@@ -141,10 +141,12 @@ class LiveDataStreamer(DataHandler):
     log.debug("closed connection")
 
   def subscribe_to_ticker(self, tickers):
+    log.debug(f'subscribing from {tickers}')
     subscribe_message = {"action": "subscribe", "trades": tickers}
     self.ws.send(json.dumps(subscribe_message))
 
   def unsubscribe_to_ticker(self, tickers):
+    log.debug(f'unsubscribing from {tickers}')
     unsubscribe_message = {"action": "unsubscribe", "trades": tickers}
     self.ws.send(json.dumps(unsubscribe_message))
 
