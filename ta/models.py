@@ -5,3 +5,10 @@ class Bar(object):
         self.high = high,
         self.low = low,
         self.close = close,
+
+class DailyData(object):
+    def __init__(self):
+        self.ignition = False
+        self.pullback = False
+        self.hod = None
+        self.lod = None

@@ -1,5 +1,5 @@
 from stream import HistoricalDataStreamer, LiveDataStreamer, OutofDataError
-from strategy import HistoricalThreeBarStrategy, LiveThreeBarStrategy
+from ta.strategies import HistoricalThreeBarStrategy, LiveThreeBarStrategy
 from portfolio import Portfolio
 import queue
 from event import *

@@ -5,8 +5,8 @@ import common.config as config
 from event import *
 from db import DB
 from portfolio import Portfolio
-from stream import HistoricalDataStreamer, LiveDataStreamer, OutofDataError
-from strategy import HistoricalThreeBarStrategy, LiveThreeBarStrategy
+from stream import HistoricalDataStreamer, OutofDataError
+from ta.strategies import HistoricalThreeBarStrategy
 import tests.utils as utils
 
 

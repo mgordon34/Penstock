@@ -3,10 +3,10 @@ from datetime import datetime
 import logging
 
 import common.config as config
-from common.models import Bar
 from event import SignalEvent
-from strategy.base_strategy import BaseStrategy
-from strategy.technicals import DailyData, diff_minutes, find_lowest
+from ta.analyzer import Analyzer
+from ta.strategies import BaseStrategy
+from ta.models import DailyData
 
 log = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class HistoricalThreeBarStrategy(object):
         self.events.put(SignalEvent(ticker, 'CLOSE', curr_bar['h'], curr_bar['t']))
 
     #calculate ignition
-    diff = diff_minutes(self.tickers[ticker].hod[1], curr_bar['t'])
+    diff = Analyzer.diff_minutes(self.tickers[ticker].hod[1], curr_bar['t'])
     if diff == 0:
       log.debug('new high for {}: {}'.format(ticker, curr_bar))
       qual = True
@@ -75,14 +75,14 @@ class HistoricalThreeBarStrategy(object):
           qual = False
       if qual:
         log.debug('[{}]Ignition activated for {}'.format(curr_bar['t'], ticker))
-        dist = curr_bar['h'] - find_lowest(bars)[0]
+        dist = curr_bar['h'] - Analyzer.find_lowest(bars)[0]
         if dist > 0:
           self.tickers[ticker].ignition = {'h': curr_bar['h'], 't': curr_bar['t'], 'dist': dist}
           self.tickers[ticker].pullback = False
     # else:
     #   log.debug('no high({}) for {}: {}'.format(self.tickers[ticker].hod[0], ticker, curr_bar['t']))
     
-    if self.tickers[ticker].ignition and diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t']) > 0:
+    if self.tickers[ticker].ignition and Analyzer.diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t']) > 0:
       #calculate if signal should be generated
       if self.tickers[ticker].pullback and curr_bar['h'] > bars[lookback-2]['h']:
         entry = bars[lookback-2]['h']
@@ -111,7 +111,7 @@ class HistoricalThreeBarStrategy(object):
         self.tickers[ticker].pullback = True
 
       # calculate if ignition/pullback should be removed
-      diff = diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t'])
+      diff = Analyzer.diff_minutes(self.tickers[ticker].ignition['t'], curr_bar['t'])
       pb_len = self.tickers[ticker].ignition['h'] - curr_bar['l']
       if (diff > 4):
         log.debug('[{}]Ignition/pullback removed for {}: ignition too old'.format(curr_bar['t'], ticker))
