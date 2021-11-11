@@ -17,6 +17,7 @@ class TestSample:
   def setup_class(cls):
     db_file = utils.setup_test_db()
     TestSample.db = DB(db_file)
+    config.db_file = db_file
 
   @classmethod
   def teardown_class(cls):
