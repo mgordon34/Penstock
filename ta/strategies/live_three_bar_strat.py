@@ -27,7 +27,6 @@ class LiveThreeBarStrategy(BaseStrategy):
       log.debug('handling trade event')
       for symbol in list(self.subscriptions):
         if self.subscriptions[symbol] and self.data.get_price(symbol):
-          log.debug('{} price: {}'.format(symbol, self.data.get_price(symbol)))
           self.calculate_trade(symbol)
     return
 
@@ -46,6 +45,7 @@ class LiveThreeBarStrategy(BaseStrategy):
     if self.positions[symbol]:
       # See if position needs to be closed
       log.debug(f'{symbol} price: {price}')
+      log.debug(f'{symbol} tp: {self.positions[symbol]["tp"]}')
       log.debug(f'{symbol} stoploss: {self.positions[symbol]["sl"]}')
       if price < self.positions[symbol]['sl']:
         self.unsubscribe(symbol)
