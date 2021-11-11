@@ -11,13 +11,10 @@ import tests.utils as utils
 
 
 class TestSample:
-  db = None
 
   @classmethod
   def setup_class(cls):
-    db_file = utils.setup_test_db()
-    TestSample.db = DB(db_file)
-    config.db_file = db_file
+    config.db_file = utils.setup_test_db()
 
   @classmethod
   def teardown_class(cls):
