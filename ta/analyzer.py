@@ -14,6 +14,9 @@ class Analyzer(object):
 
     @classmethod
     def find_lowest(self, bars):
+        if not bars:
+            return (None, None)
+
         low = (float('+inf'), None)
         for bar in bars:
             if bar['l'] < low[0]:
