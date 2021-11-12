@@ -1,0 +1,7 @@
+config.py
+trades.db
+.venv/
+__pycache__/
+TODO.txt
+scratch.py
+etrade_token.json
