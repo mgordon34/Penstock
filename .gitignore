@@ -5,3 +5,4 @@ __pycache__/
 TODO.txt
 scratch.py
 etrade_token.json
+.vscode/
