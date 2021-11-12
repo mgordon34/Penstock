@@ -9,8 +9,8 @@ logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 DB_FILE = '/Users/matt/git/trading/trades.db'
 base_url = 'https://data.alpaca.markets/v2'
 header = {
-  'APCA-API-KEY-ID': config.api_key,
-  'APCA-API-SECRET-KEY': config.api_secret
+  'APCA-API-KEY-ID': config.alpaca_api_key,
+  'APCA-API-SECRET-KEY': config.alpaca_api_secret
 }
 
 def injest_bars(symbols, dates):
