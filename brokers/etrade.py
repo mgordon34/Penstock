@@ -113,5 +113,8 @@ class EtradeInterface(object):
         response = self.session.get(url, header_auth=True, params=params, headers=headers)
         # response = self.session.get(url + f'?instType={self.institution_type}&realTimeNAV=true', header_auth=True)
         if response is not None and response.status_code == 200:
-            data = response.json()
-        return data
+            data = response.json()['BalanceResponse']['Computed']
+        return {
+            'account_balance': data['RealTimeValues']['totalAccountValue'],
+            'settled_cash': data['settledCashForInvestment']
+        }
