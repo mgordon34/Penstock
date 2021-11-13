@@ -9,8 +9,11 @@ import common.config as config
 log = logging.getLogger(__name__)
 
 class EtradeInterface(object):
-    def __init__(self, token_file_name, base_url):
+    def __init__(self, token_file_name, base_url, account_id, account_type, institution_type):
         self.base_url = base_url
+        self.account_id = account_id
+        self.account_type = account_type
+        self.institution_type = institution_type
         self.get_session(token_file_name)
 
     def get_session(self, token_file_name):
@@ -22,7 +25,7 @@ class EtradeInterface(object):
                     consumer_secret=config.etrade_consumer_secret,
                     **token_data
                 )
-                if not self.get_accounts():
+                if not self.list_accounts():
                     self.session = self.oauth(token_file_name)
 
         except FileNotFoundError:
@@ -92,14 +95,23 @@ class EtradeInterface(object):
             else:
                 print("Unknown Option Selected!")
 
-    def get_accounts(self):
+    def list_accounts(self):
         url = self.base_url + '/v1/accounts/list.json'
         response = self.session.get(url)
-        if response.status_code == 401:
-            return None
         if response is not None and response.status_code == 200:
-            parsed = json.loads(response.text)
-            log.debug("Response Body: %s", json.dumps(parsed, indent=4, sort_keys=True))
             data = response.json()
 
-        return response
+        return data
+
+    def get_account_balance(self):
+        url = self.base_url + f'/v1/accounts/{self.account_id}/balance.json'
+        params = {
+            'instType': self.institution_type,
+            'realTimeNAV': 'true'
+        }
+        headers = {"consumerkey": config.etrade_consumer_key}
+        response = self.session.get(url, header_auth=True, params=params, headers=headers)
+        # response = self.session.get(url + f'?instType={self.institution_type}&realTimeNAV=true', header_auth=True)
+        if response is not None and response.status_code == 200:
+            data = response.json()
+        return data
