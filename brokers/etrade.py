@@ -1,6 +1,7 @@
 import webbrowser
 import json
 import logging
+import random
 import requests
 from rauth import OAuth1Service, OAuth1Session
 
@@ -118,3 +119,20 @@ class EtradeInterface(object):
             'account_balance': data['RealTimeValues']['totalAccountValue'],
             'settled_cash': data['settledCashForInvestment']
         }
+
+    def preview_order(
+        self,
+        symbol,
+        order_type, # 'BUY'
+        order_action, # 'EQ'
+        quantity,
+        all_or_none=False,
+        price_type='MARKET',
+        order_term='GOOD_FOR_DAY',
+        market_session='REGULAR',
+        stop_price='',
+        limit_price='',
+        stop_limit_price='',
+        quantity_type='QUANTITY'
+    ):
+        return
