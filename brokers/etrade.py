@@ -1,19 +1,24 @@
-import webbrowser
+from dicttoxml import dicttoxml
 import json
 import logging
 import random
-import requests
 from rauth import OAuth1Service, OAuth1Session
+import webbrowser
+
+from requests.sessions import to_native_string
 
 import common.config as config
 
 log = logging.getLogger(__name__)
 
 class EtradeInterface(object):
-    def __init__(self, token_file_name, base_url, account_id, account_type, institution_type):
+    def __init__(self, token_file_name, base_url, consumer_key, consumer_secret,
+                 account_id, account_type, institution_type):
         self.base_url = base_url
         self.account_id = account_id
         self.account_type = account_type
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
         self.institution_type = institution_type
         self.get_session(token_file_name)
 
@@ -22,8 +27,8 @@ class EtradeInterface(object):
             with open(token_file_name) as token_file:
                 token_data = json.load(token_file)
                 self.session = OAuth1Session(
-                    consumer_key=config.etrade_consumer_key,
-                    consumer_secret=config.etrade_consumer_secret,
+                    consumer_key=self.consumer_key,
+                    consumer_secret=self.consumer_secret,
                     **token_data
                 )
                 if not self.list_accounts():
@@ -31,13 +36,13 @@ class EtradeInterface(object):
 
         except FileNotFoundError:
             log.debug('No token file found, running oauth...')
-            return self.oauth(token_file_name)
+            self.session = self.oauth(token_file_name)
 
     def oauth(self, token_file_name):
         etrade = OAuth1Service(
             name="etrade",
-            consumer_key=config.etrade_consumer_key,
-            consumer_secret=config.etrade_consumer_secret,
+            consumer_key=self.consumer_key,
+            consumer_secret=self.consumer_secret,
             request_token_url="https://api.etrade.com/oauth/request_token",
             access_token_url="https://api.etrade.com/oauth/access_token",
             authorize_url="https://us.etrade.com/e/t/etws/authorize?key={}&token={}",
@@ -69,7 +74,7 @@ class EtradeInterface(object):
             json.dump(access_tokens, token_file)
 
         return OAuth1Session(
-            consumer_key=config.etrade_consumer_key,
+            consumer_key=self.consumer_key,
             consumer_secret=config.etrade_consumer_secret,
             **access_tokens
         )
@@ -97,7 +102,10 @@ class EtradeInterface(object):
                 print("Unknown Option Selected!")
 
     def list_accounts(self):
+        data = None
+
         url = self.base_url + '/v1/accounts/list.json'
+        headers = {'consumerkey': self.consumer_key}
         response = self.session.get(url)
         if response is not None and response.status_code == 200:
             data = response.json()
@@ -105,12 +113,14 @@ class EtradeInterface(object):
         return data
 
     def get_account_balance(self):
+        data = None
+
         url = self.base_url + f'/v1/accounts/{self.account_id}/balance.json'
         params = {
             'instType': self.institution_type,
             'realTimeNAV': 'true'
         }
-        headers = {"consumerkey": config.etrade_consumer_key}
+        headers = {'consumerkey': self.consumer_key}
         response = self.session.get(url, header_auth=True, params=params, headers=headers)
         # response = self.session.get(url + f'?instType={self.institution_type}&realTimeNAV=true', header_auth=True)
         if response is not None and response.status_code == 200:
@@ -123,8 +133,8 @@ class EtradeInterface(object):
     def preview_order(
         self,
         symbol,
-        order_type, # 'BUY'
-        order_action, # 'EQ'
+        order_type, # 'EQ'
+        order_action, # 'BUY'
         quantity,
         all_or_none=False,
         price_type='MARKET',
@@ -135,4 +145,41 @@ class EtradeInterface(object):
         stop_limit_price='',
         quantity_type='QUANTITY'
     ):
-        return
+        data = None
+
+        url = self.base_url + f'/v1/accounts/{self.account_id}/orders/preview.json'
+        headers = {
+            'consumerkey': self.consumer_key,
+            'Content-Type': 'application/xml'
+        }
+        body = {
+            'orderType': order_type,
+            'clientOrderId': random.randint(1000000000,9999999999),
+            'Order': {
+                'allOrNone': 'false',
+                'priceType': price_type,
+                'orderTerm': order_term,
+                'marketSession': market_session,
+                'stopPrice': stop_price,
+                'limitPrice': limit_price,
+                'Instrument': {
+                    'Product': {
+                        'securityType': order_type,
+                        'symbol': symbol
+                    },
+                    'orderAction': order_action,
+                    'quantityType': quantity_type,
+                    'quantity': quantity
+                }
+            }
+        }
+        body_xml = to_native_string(dicttoxml(body, custom_root='PreviewOrderRequest'))
+
+        response = self.session.post(url, header_auth=True, headers=headers, data=body_xml)
+
+        if response is not None and response.status_code == 200:
+            data = response.json()
+        else:
+            print(f'problem found: {response.text}')
+
+        return data
