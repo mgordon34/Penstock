@@ -25,7 +25,7 @@ class TestSample:
 
   def test_end_to_end(self):
     events = queue.Queue()
-    stream = HistoricalDataStreamer(events, 'bars', config.symbols, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
+    stream = HistoricalDataStreamer(config.db_file, events, 'bars', config.symbols, '2021-08-12T13:30:00Z', '2021-08-12T19:59:00Z')
     strat = HistoricalThreeBarStrategy(events, stream)
     portfolio = Portfolio(events, 30000, 3*.9, 1)
 
@@ -41,7 +41,7 @@ class TestSample:
     dates = ['2021-10-25', '2021-10-26', '2021-10-27', '2021-10-28', '2021-10-29']
 
     for date in dates:
-      stream = HistoricalDataStreamer(events, 'bars', symbols, date+'T13:30:00Z', date+'T19:59:00Z')
+      stream = HistoricalDataStreamer(config.db_file, events, 'bars', symbols, date+'T13:30:00Z', date+'T19:59:00Z')
       strat = HistoricalThreeBarStrategy(events, stream)
       portfolio = Portfolio(events, balance, 3*.9, 1)
 

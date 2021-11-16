@@ -13,10 +13,10 @@ events = queue.Queue()
 stream = None
 strat = None
 if config.type == 'historical':
-  stream = HistoricalDataStreamer(events, 'bars', config.symbols, '2021-10-25:30:00Z', '2021-10-29:59:00Z')
+  stream = HistoricalDataStreamer(config.db_file, events, 'bars', config.symbols, '2021-10-25:30:00Z', '2021-10-29:59:00Z')
   strat = HistoricalThreeBarStrategy(events, stream)
 elif config.type == 'live':
-  stream = LiveDataStreamer(events)
+  stream = LiveDataStreamer(config.db_file, events)
   strat = LiveThreeBarStrategy(events, stream)
   stream.run()
 portfolio = Portfolio(events, config.starting_balance, config.pct_buying_power, config.max_positions)

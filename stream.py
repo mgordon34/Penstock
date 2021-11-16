@@ -41,8 +41,8 @@ class TickerObject(object):
 
 
 class DataHandler(object):
-  def __init__(self, events):
-    self.db = DB(config.db_file)
+  def __init__(self, db_file_name, events):
+    self.db = DB(db_file_name)
     self.events = events
     self.tickers = defaultdict(TickerObject)
 
@@ -54,8 +54,8 @@ class DataHandler(object):
     raise NotImplementedError('update_price() should be implemented')
 
 class HistoricalDataStreamer(DataHandler):
-  def __init__(self, events, type, tickers, start, end):
-      super().__init__(events)
+  def __init__(self, db_file_name, events, type, tickers, start, end):
+      super().__init__(db_file_name, events)
       self.type = type
       self.data = queue.Queue()
       self.index = -1
@@ -103,8 +103,8 @@ class HistoricalDataStreamer(DataHandler):
 
 
 class LiveDataStreamer(DataHandler):
-  def __init__(self, events):
-    super().__init__(events)
+  def __init__(self, db_file_name, events):
+    super().__init__(db_file_name, events)
     self.ws = websocket.WebSocketApp(config.ws_url, on_open=self.on_open, on_message=self.on_message, on_close=self.on_close)
     self.wst = threading.Thread(target=self.ws.run_forever)
     self.wst.daemon = True
@@ -125,7 +125,7 @@ class LiveDataStreamer(DataHandler):
 
   def on_open(self, ws):
     log.debug("Live WS opened")
-    auth_data = {"action": "auth", "key": config.api_key, "secret": config.api_secret}
+    auth_data = {"action": "auth", "key": config.alpaca_api_key, "secret": config.alpaca_api_secret}
 
     ws.send(json.dumps(auth_data))
 
