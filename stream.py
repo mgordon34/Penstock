@@ -103,8 +103,10 @@ class HistoricalDataStreamer(DataHandler):
 
 
 class LiveDataStreamer(DataHandler):
-  def __init__(self, db_file_name, events):
+  def __init__(self, db_file_name, events, bars_to_watch, trades_to_watch=[]):
     super().__init__(db_file_name, events)
+    self.bars_to_watch = bars_to_watch
+    self.trades_to_watch = trades_to_watch
     self.ws = websocket.WebSocketApp(config.ws_url, on_open=self.on_open, on_message=self.on_message, on_close=self.on_close)
     self.wst = threading.Thread(target=self.ws.run_forever)
     self.wst.daemon = True
@@ -129,12 +131,13 @@ class LiveDataStreamer(DataHandler):
 
     ws.send(json.dumps(auth_data))
 
-    subscribe_message = {"action": "subscribe", "bars": config.symbols}
+    subscribe_message = {"action": "subscribe", "bars": self.bars_to_watch, "trades": self.trades_to_watch}
 
     ws.send(json.dumps(subscribe_message))
 
   def on_message(self, ws, message):
     message = json.loads(message)
+    print(message)
     self.handle_message(message)
 
   def on_close(self, ws):
