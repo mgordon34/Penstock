@@ -4,7 +4,7 @@ from brokers.etrade import EtradeInterface
 import common.config as config
 
 logging.getLogger('dicttoxml').setLevel(logging.CRITICAL)
-logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+# logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 
 if __name__ == '__main__':
     base_url = ''
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     print(etrade.list_accounts())
     print(etrade.get_account_balance())
     print(etrade.preview_order(
-        symbol='AAPL',
+        symbol='WKHS',
         order_type='EQ',
         order_action='BUY',
         quantity=1

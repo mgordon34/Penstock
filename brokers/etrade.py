@@ -75,7 +75,7 @@ class EtradeInterface(object):
 
         return OAuth1Session(
             consumer_key=self.consumer_key,
-            consumer_secret=config.etrade_consumer_secret,
+            consumer_secret=self.consumer_secret,
             **access_tokens
         )
 
