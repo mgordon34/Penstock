@@ -10,6 +10,8 @@ import common.config as config
 
 log = logging.getLogger(__name__)
 handler = RotatingFileHandler(config.injest_logging_path, maxBytes=2000, backupCount=5)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
 log.addHandler(handler)
 
 def injest_live_data(db_file_name):
