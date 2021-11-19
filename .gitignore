@@ -1,4 +1,6 @@
 config.py
+nohup.out
+trades_archive.db
 trades.db
 .venv/
 __pycache__/

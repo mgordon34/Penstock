@@ -137,6 +137,7 @@ class LiveDataStreamer(DataHandler):
     ws.send(json.dumps(subscribe_message))
 
   def on_message(self, ws, message):
+    log.debug('handling message: ' + message)
     message = json.loads(message)
     print(message)
     self.handle_message(message)
@@ -155,7 +156,6 @@ class LiveDataStreamer(DataHandler):
     self.ws.send(json.dumps(unsubscribe_message))
 
   def handle_message(self, message):
-    log.debug('handling message: ' + message)
     for event in message:
       type = event['T']
       if type == 't':

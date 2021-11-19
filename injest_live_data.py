@@ -26,8 +26,6 @@ def injest_live_data(db_file_name):
 
     msg_counter = 0
     while stream.ws.sock.connected:
-        log.debug('debug running')
-        log.info('running')
         sleep(1)
 
 
