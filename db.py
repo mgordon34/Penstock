@@ -57,6 +57,7 @@ class DB(object):
     return cur.lastrowid
 
   def add_bar(self, bar):
+    log.debug(f'bulk adding bar: {bar}')
     sql = '''INSERT INTO bars(ticker,open,high,low,close,volume,timestamp)
               VALUES(?,?,?,?,?,?,?)'''
     cur = self.conn.cursor()
@@ -65,6 +66,7 @@ class DB(object):
     return cur.lastrowid
 
   def bulk_add_bars(self, bars):
+    log.debug(f'bulk adding {len(bars)} bars')
     sql = '''INSERT INTO bars(ticker,open,high,low,close,volume,timestamp)
               VALUES(?,?,?,?,?,?,?)'''
     cur = self.conn.cursor()
