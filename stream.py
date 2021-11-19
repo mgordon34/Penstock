@@ -13,6 +13,7 @@ from event import MarketEvent
 
 import logging
 log = logging.getLogger(__name__)
+log.addHandler(config.handler)
 
 class OutofDataError(Exception):
   pass
@@ -154,6 +155,7 @@ class LiveDataStreamer(DataHandler):
     self.ws.send(json.dumps(unsubscribe_message))
 
   def handle_message(self, message):
+    log.debug('handling message: ' + message)
     for event in message:
       type = event['T']
       if type == 't':
