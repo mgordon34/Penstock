@@ -5,6 +5,7 @@ import common.config as config
 
 import logging
 log = logging.getLogger(__name__)
+log.addHandler(config.handler)
 
 class DB(object):
   def __init__(self, db_file):

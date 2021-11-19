@@ -27,6 +27,7 @@ def injest_live_data(db_file_name):
     msg_counter = 0
     while stream.ws.sock.connected:
         sleep(1)
+        stream.update_price()
 
 
 if __name__ == "__main__":

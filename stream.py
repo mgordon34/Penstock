@@ -117,8 +117,10 @@ class LiveDataStreamer(DataHandler):
 
   def update_price(self):
     if self.new_bar and (time() - self.new_bar) > 2:
-      self.new_bar = False
       self.events.put(MarketEvent('bars'))
+      self.db.bulk_add_bars(self.bars_to_add)
+      self.new_bar = False
+      self.bars_to_add = []
     if self.new_trade:
       self.new_trade = False
       self.events.put(MarketEvent('trade'))
@@ -180,7 +182,7 @@ class LiveDataStreamer(DataHandler):
       log.debug('Handling bar for ' + bar['S'])
       s = bar['S']
       bar_obj = (bar['o'], bar['h'], bar['l'], bar['c'], bar['v'], bar['t'])
-      self.db.add_bar((s, *bar_obj))
+    #   self.db.add_bar((s, *bar_obj))
       b = {
         'o': bar['o'],
         'h': bar['h'],
@@ -190,6 +192,7 @@ class LiveDataStreamer(DataHandler):
       }
       self.tickers[s].add_bar(b)
       self.new_bar = time()
+      self.bars_to_add.append((s, *bar_obj)) 
     except Exception as e:
       log.error('error')
       log.error(traceback.print_exc())
@@ -210,3 +213,4 @@ if __name__ == '__main__':
   msg_counter = 0
   while stream.ws.sock.connected:
     sleep(1)
+    stream.update_price()
