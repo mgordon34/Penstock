@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import Error
+from sqlite3.dbapi2 import OperationalError
 
 import common.config as config
 
@@ -79,6 +80,9 @@ class DB(object):
       log.debug(cur.lastrowid)
     except Error as e:
       log.error(e)
+      if e is OperationalError:
+          log.error('Operational error, skipping...')
+          return
       cur.execute('rollback')
 
   
@@ -122,3 +126,5 @@ if __name__ == '__main__':
   db = DB(config.db_file)
   db.add_trade(trade)
   '''select * from bars where datetime(timestamp) between datetime('2021-07-12T13:30:00Z') and datetime('2021-07-12T19:59:00Z')'''
+  '''select * from bars where datetime(timestamp) between datetime('2021-11-23T13:30:00Z') and datetime('2021-11-23T19:59:00Z')'''
+  '''select * from trades where datetime(timestamp) between datetime('2021-11-23T13:30:00Z') and datetime('2021-11-23T19:59:00Z')'''
