@@ -117,6 +117,7 @@ class LiveDataStreamer(DataHandler):
 
   def update_price(self):
     if self.new_bar and (time() - self.new_bar) > 2:
+      log.debug('updating price')
       self.events.put(MarketEvent('bars'))
       self.db.bulk_add_bars(self.bars_to_add)
       self.new_bar = False
