@@ -3,18 +3,19 @@ import common.config as config
 
 def dict_contains(superset, subset): 
     for item in subset:
-        print(item)
         if type(subset[item]) == list:
-            if not dict_contains(superset[item][0], subset[item][0]):
-                return False
+            res, message = dict_contains(superset[item][0], subset[item][0])
+            if not res:
+                return False, message
         elif type(subset[item]) == dict:
-            if not dict_contains(superset[item], subset[item]):
-                return False
+            res, message = dict_contains(superset[item], subset[item])
+            if not res:
+                return False, message
         else:
             if item not in superset or subset[item] != superset[item]:
-                print(f'mismatch for {item}: expected: {subset[item]}, actual: {superset[item]}')
-                return False
-    return True
+                return False, f'mismatch for {item}: expected: {subset[item]}, actual: {superset[item]}'
+                
+    return True, None
 
 class TestEtrade:
     etrade = None
@@ -72,4 +73,5 @@ class TestEtrade:
             order_action='BUY',
             quantity=1
         )
-        assert(dict_contains(preview_response, expected_preview))
+        res, message = dict_contains(preview_response, expected_preview)
+        assert res, message
