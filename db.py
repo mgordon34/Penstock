@@ -78,11 +78,11 @@ class DB(object):
         cur.execute(sql, bar)
       cur.execute('commit')
       log.debug(cur.lastrowid)
-    except Error as e:
+    except OperationalError as e:
       log.error(e)
-      if e is OperationalError:
-          log.error('Operational error, skipping...')
-          return
+      log.error('Operational error, skipping...')
+      return
+    except Error as e:
       cur.execute('rollback')
 
   
