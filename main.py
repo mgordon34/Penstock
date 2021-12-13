@@ -1,12 +1,14 @@
+from  flask import Flask
+import logging
+import threading
+
+import common.config as config
+from event import *
+from portfolio import Portfolio
 from stream import HistoricalDataStreamer, LiveDataStreamer, OutofDataError
 from ta.strategies import HistoricalThreeBarStrategy, LiveThreeBarStrategy
-from portfolio import Portfolio
 import queue
-from event import *
-from  flask import Flask
-import common.config as config
 
-import logging
 log = logging.getLogger(__name__)
 logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 
