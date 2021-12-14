@@ -20,7 +20,6 @@ class EtradeInterface(object):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.institution_type = institution_type
-        self.get_session(token_file_name)
 
     def get_session(self, token_file_name):
         try:
@@ -32,7 +31,7 @@ class EtradeInterface(object):
                     **token_data
                 )
                 if not self.list_accounts():
-                    self.session = self.oauth(token_file_name)
+                    self.oauth(token_file_name)
 
         except FileNotFoundError:
             log.debug('No token file found, running oauth...')
@@ -73,7 +72,7 @@ class EtradeInterface(object):
         with open(token_file_name, 'w') as token_file:
             json.dump(access_tokens, token_file)
 
-        return OAuth1Session(
+        self.session = OAuth1Session(
             consumer_key=self.consumer_key,
             consumer_secret=self.consumer_secret,
             **access_tokens

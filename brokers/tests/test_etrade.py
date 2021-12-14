@@ -45,6 +45,7 @@ class TestEtrade:
             config.etrade_account_type,
             config.etrade_institution_type
         )
+        TestEtrade.etrade.get_session(config.etrade_token_file_name)
 
     def test_preview(self):
         expected_preview = {

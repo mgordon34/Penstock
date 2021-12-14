@@ -30,6 +30,7 @@ if __name__ == '__main__':
         config.etrade_account_type,
         config.etrade_institution_type
     )
+    etrade.get_session(config.etrade_token_file_name)
     print(etrade.list_accounts())
     print(etrade.get_account_balance())
     print(etrade.preview_order(
