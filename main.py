@@ -41,6 +41,11 @@ balance = config.starting_balance
 def hello_world():
     return '<p>Hello, from stonks api!</p>'
 
+@app.route('/token')
+def initialize():
+    log.debug('getting etrade token')
+
+
 @app.route('/run')
 def run():
     while True:
