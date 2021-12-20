@@ -26,11 +26,6 @@ elif config.type == 'live':
   stream.run()
 portfolio = Portfolio(events, config.starting_balance, config.pct_buying_power, config.max_positions)
 
-total_profit = 0
-total_winners = 0 
-total_losers = 0
-balance = config.starting_balance
-
 
 # for date in config.dates:
 #   stream = HistoricalDataStreamer(events, 'bars', config.symbols, date+'T13:30:00Z', date+'T19:59:00Z')
@@ -49,6 +44,11 @@ def initialize():
 
 @app.route('/run')
 def run():
+    total_profit = 0
+    total_winners = 0
+    total_losers = 0
+    balance = config.starting_balance
+
     while True:
         try:
             stream.update_price()
