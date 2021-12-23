@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 class LiveThreeBarStrategy(BaseStrategy):
   def __init__(self, events, data):
+    self.strategy_name = 'live_three_bar'
     self.subscriptions = {}
     self.tickers = defaultdict(DailyData)
     self.events = events
@@ -49,10 +50,10 @@ class LiveThreeBarStrategy(BaseStrategy):
       log.debug(f'{symbol} stoploss: {self.positions[symbol]["sl"]}')
       if price < self.positions[symbol]['sl']:
         self.unsubscribe(symbol)
-        self.events.put(SignalEvent(symbol, 'CLOSE', price, time))
+        self.events.put(SignalEvent(self.strategy_name, symbol, 'CLOSE', price, time))
       elif price > self.positions[symbol]['tp']:
         self.unsubscribe(symbol)
-        self.events.put(SignalEvent(symbol, 'CLOSE', price, time))
+        self.events.put(SignalEvent(self.strategy_name, symbol, 'CLOSE', price, time))
     else:
       # See if signal should be generated
       if price > self.subscriptions[symbol]['entry']:
@@ -66,7 +67,7 @@ class LiveThreeBarStrategy(BaseStrategy):
         }
 
         log.debug(f'Buy signal triggered for {symbol}: at {price}, sl: {sl}, tp: {tp}')
-        self.events.put(SignalEvent(symbol, 'BUY', price, time, sl, tp))
+        self.events.put(SignalEvent(self.strategy_name, symbol, 'BUY', price, time, sl, tp))
 
   def calculate_signal(self, ticker):
     lookback = 5

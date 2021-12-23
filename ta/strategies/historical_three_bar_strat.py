@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 class HistoricalThreeBarStrategy(object):
   def __init__(self, events, data):
+    self.strategy_name = 'hist_three_bar'
     self.subscriptions = {'AAPL', 'TSLA', 'BIDU', 'ROKU'}
     self.tickers = defaultdict(DailyData)
     self.events = events
@@ -60,10 +61,10 @@ class HistoricalThreeBarStrategy(object):
     if self.positions[ticker]:
       if curr_bar['l'] < self.positions[ticker]['sl']:
         self.positions[ticker] = None
-        self.events.put(SignalEvent(ticker, 'CLOSE', curr_bar['l'], curr_bar['t']))
+        self.events.put(SignalEvent(self.strategy_name, ticker, 'CLOSE', curr_bar['l'], curr_bar['t']))
       elif curr_bar['h'] > self.positions[ticker]['tp']:
         self.positions[ticker] = None
-        self.events.put(SignalEvent(ticker, 'CLOSE', curr_bar['h'], curr_bar['t']))
+        self.events.put(SignalEvent(self.strategy_name, ticker, 'CLOSE', curr_bar['h'], curr_bar['t']))
 
     #calculate ignition
     diff = Analyzer.diff_minutes(self.tickers[ticker].hod[1], curr_bar['t'])
@@ -102,7 +103,7 @@ class HistoricalThreeBarStrategy(object):
             "sl": sl,
             "tp": tp
           }
-          self.events.put(SignalEvent(ticker, 'BUY', entry, curr_bar['t'], sl, tp))
+          self.events.put(SignalEvent(self.strategy_name, ticker, 'BUY', entry, curr_bar['t'], sl, tp))
         return
 
       #calculate if pullback should be activated

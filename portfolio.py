@@ -1,11 +1,14 @@
 import common.config as config
+from db import DB
 from event import SignalEvent
 
 import logging
 log = logging.getLogger(__name__)
 
 class TradeObject(object):
-  def __init__(self, symbol, shares, entry, sl, tp, start):
+  def __init__(self, id, strategy, symbol, shares, entry, sl, tp, start):
+    self.id = id
+    self.strategy = strategy
     self.symbol = symbol
     self.shares = shares
     self.entry = entry
@@ -18,6 +21,7 @@ class TradeObject(object):
 class Portfolio(object):
   def __init__(self, events, balance, pct_bp, max_positions):
     self.events = events
+    self.db = DB(config.db_file)
     self.starting_balance = balance
     self.balance = balance
     self.pct_bp = pct_bp
@@ -36,7 +40,8 @@ class Portfolio(object):
         logging.debug('Position already open for {}, not buying'.format(event.symbol))
         return
       num_shares = self.calculate_shares(event.price)
-      new_pos = TradeObject(event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
+      id = self.db.add_position(event.symbol, num_shares, event.price, event.tp, event.sl, event.strategy, 'OPEN', event.timestamp)
+      new_pos = TradeObject(id, event.strategy, event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
       self.positions.append(new_pos)
       logging.info('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
 
@@ -83,6 +88,7 @@ class Portfolio(object):
         position.result = price - position.entry
         position.end_time = timestamp
         self.trade_hist.append(position)
+        self.db.update_position(position.id, 'WIN' if position.result > 0 else 'LOSS')
         return position
     return None
 
