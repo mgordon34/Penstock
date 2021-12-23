@@ -129,6 +129,29 @@ class DB(object):
         cur.execute(sql)
         return cur.fetchall()
 
+    def add_position(self, symbol, quantity, price, tp, sl, strategy, status, timestamp):
+        position_object = (symbol, quantity, price, tp, sl, strategy, status, timestamp)
+        position_sql = '''INSERT INTO positions(symbol, quantity, opening_price, take_profit, stop_loss, strategy, status, timestamp)
+                            VALUES(?,?,?,?,?,?,?,?)'''
+        cur = self.conn.cursor()
+        cur.execute(position_sql, position_object)
+        self.conn.commit()
+        return cur.lastrowid
+
+    def get_positions(self, strategy, status=None):
+        sql = f"""SELECT * FROM positions WHERE strategy='{strategy}'"""
+        if status:
+            sql += f""" AND status='{status}'"""
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        return cur.fetchall()
+
+    def update_position(self, position_id, status):
+        sql = f"""UPDATE positions SET status='{status}' where id={position_id}"""
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        self.conn.commit()
+        return cur.lastrowid
     
 # Test function
 if __name__ == '__main__':
