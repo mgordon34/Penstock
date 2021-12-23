@@ -6,7 +6,7 @@ import common.config as config
 from event import SignalEvent
 from ta.analyzer import Analyzer
 from ta.models import DailyData
-from ta.strategies.base_strategy import BaseStrategy
+from ta.strategies import BaseStrategy
 
 log = logging.getLogger(__name__)
 
