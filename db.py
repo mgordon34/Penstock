@@ -29,8 +29,20 @@ class DB(object):
                                     volume integer NOT NULL,
                                     timestamp text NOT NULL
                                   );"""
+    sql_create_positions_table =  """CREATE TABLE IF NOT EXISTS positions (
+                                    id integer PRIMARY KEY,
+                                    symbol text NOT NULL,
+                                    quantity integer NOT NULL,
+                                    opening_price real NOT NULL,
+                                    take_profit real NOT NULL,
+                                    stop_loss real NOT NULL,
+                                    status text NOT NULL,
+                                    strategy text,
+                                    timestamp text NOT NULL
+                                  );"""
     self.create_table(sql_create_trades_table)
     self.create_table(sql_create_bars_table)
+    self.create_table(sql_create_positions_table)
 
   def create_connection(self, db_file):
     conn = None
