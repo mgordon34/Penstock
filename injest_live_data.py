@@ -3,8 +3,7 @@ from logging.handlers import RotatingFileHandler
 import queue
 from time import sleep
 
-from stream import LiveDataStreamer, OutofDataError
-from ta.strategies import LiveThreeBarStrategy
+from stream import LiveDataStreamer
 from event import *
 import common.config as config
 
