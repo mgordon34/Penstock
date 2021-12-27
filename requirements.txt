@@ -2,6 +2,7 @@ alpaca-trade-api
 dicttoxml
 flask
 pytest
+strEnum
 rauth
 requests
 yfinance

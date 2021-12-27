@@ -69,6 +69,12 @@ class DB(object):
         self.conn.commit()
         return cur.lastrowid
 
+    def update_model(self, sql):
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        self.conn.commit()
+        return cur.lastrowid
+
     def add_trade(self, trade):
         sql = '''INSERT INTO trades(ticker,price,size,timestamp)
                 VALUES(?,?,?,?)'''

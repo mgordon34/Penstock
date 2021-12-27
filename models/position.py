@@ -1,6 +1,6 @@
-from enum import Enum
+from strenum import StrEnum
 
-class PositionStatus(Enum):
+class PositionStatus(StrEnum):
     OPEN = 'OPEN',
     WIN = 'WIN',
     LOSS = 'LOSS'
@@ -13,31 +13,47 @@ class Position(object):
         self.type = type
         self.quantity = quantity
         self.price = price
-        self.tp = tp
-        self.sl = sl
+        self.take_profit = tp
+        self.stop_loss = sl
         self.strategy = strategy
         self.start_time = start_time
         self.end_time = end_time
         self.status = status if status else PositionStatus.OPEN
-        self.insert_position(db_instance)
-
-    def insert_position(self, db_instance):
-        position_sql = '''INSERT INTO positions(symbol, quantity, opening_price,
-            take_profit, stop_loss, strategy, status, start_time, end_time)
-            VALUES(?,?,?,?,?,?,?,?,?)'''
-        position_id = db_instance.insert_model(position_sql, self.get_position_object())
-        self.position_id = position_id
-        return position_id
+        self.insert(db_instance)
     
     def get_position_object(self):
         return (
             self.symbol,
             self.quantity,
             self.price,
-            self.tp,
-            self.sl,
+            self.take_profit,
+            self.stop_loss,
             self.strategy,
-            self.status,
+            self.status.value,
             self.start_time,
             self.end_time
         )
+
+    def insert(self, db_instance):
+        sql = '''INSERT INTO positions(symbol, quantity, opening_price,
+            take_profit, stop_loss, strategy, status, start_time, end_time)
+            VALUES(?,?,?,?,?,?,?,?,?)'''
+        id = db_instance.insert_model(sql, self.get_position_object())
+        self.id = id
+        return id
+
+    def save(self, db_instance, fields_changed):
+        sql = f'''UPDATE positions SET '''
+        sql += ', '.join(
+            [self.add_set_statement(field_name) for field_name in fields_changed]
+        )
+        sql += f' where id={self.id}'
+        return db_instance.update_model(sql)
+
+    def add_set_statement(self, field_name):
+        field_value = getattr(self, field_name)
+        if isinstance(field_value, StrEnum):
+            field_value = field_value.value
+        if type(field_value) == str:
+            field_value = f"'{field_value}'"
+        return f'{field_name}={field_value}'
