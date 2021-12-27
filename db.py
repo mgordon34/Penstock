@@ -38,7 +38,8 @@ class DB(object):
                                         stop_loss real NOT NULL,
                                         status text NOT NULL,
                                         strategy text,
-                                        timestamp text NOT NULL
+                                        start_time text NOT NULL,
+                                        end_time text
                                     );"""
         self.create_table(sql_create_trades_table)
         self.create_table(sql_create_bars_table)
@@ -61,6 +62,12 @@ class DB(object):
             c.execute(create_table_sql)
         except Error as e:
             log.error(e)
+
+    def insert_model(self, sql, model):
+        cur = self.conn.cursor()
+        cur.execute(sql, model)
+        self.conn.commit()
+        return cur.lastrowid
 
     def add_trade(self, trade):
         sql = '''INSERT INTO trades(ticker,price,size,timestamp)
