@@ -34,12 +34,13 @@ class DB(object):
                                         symbol text NOT NULL,
                                         type text NOT NULL,
                                         quantity integer NOT NULL,
-                                        opening_price real NOT NULL,
+                                        entry_price real NOT NULL,
                                         take_profit real NOT NULL,
                                         stop_loss real NOT NULL,
                                         strategy text,
                                         start_time text NOT NULL,
                                         end_time text,
+                                        close_price real,
                                         status text NOT NULL
                                     );"""
         self.create_table(sql_create_trades_table)

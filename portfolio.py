@@ -1,6 +1,7 @@
 import common.config as config
 from db import DB
 from event import SignalEvent
+from models.position import Position, PositionStatus
 
 import logging
 log = logging.getLogger(__name__)
@@ -40,8 +41,7 @@ class Portfolio(object):
         logging.debug('Position already open for {}, not buying'.format(event.symbol))
         return
       num_shares = self.calculate_shares(event.price)
-      id = self.db.add_position(event.symbol, num_shares, event.price, event.tp, event.sl, event.strategy, 'OPEN', event.timestamp)
-      new_pos = TradeObject(id, event.strategy, event.symbol, num_shares, event.price, event.sl, event.tp, event.timestamp)
+      new_pos = Position(self.db, event.symbol, 'LONG', num_shares, event.price, event.tp, event.sl, event.strategy, event.timestamp)
       self.positions.append(new_pos)
       logging.info('Entered position: {} shares of {} at {}'.format(num_shares, event.symbol, event.price))
 
@@ -57,12 +57,12 @@ class Portfolio(object):
     winners = 0
     losers = 0
     for trade in self.trade_hist:
-      trade_p = trade.result
+      trade_p = trade.close_price - trade.entry_price
       if trade_p >= 0:
         winners += 1
       else:
         losers += 1
-      profit += trade_p * trade.shares
+      profit += trade_p * trade.quantity
 
     logging.info('${:,.2f} made in {} trades. {} winners and {} losers'.format(profit, winners+losers, winners, losers))
     logging.info('Total ROI: {:.2%}'.format(profit/self.starting_balance))
@@ -85,10 +85,11 @@ class Portfolio(object):
     for i in range(0, len(self.positions)):
       if self.positions[i].symbol == symbol:
         position = self.positions.pop(i)
-        position.result = price - position.entry
+        position.status = PositionStatus.CLOSED
+        position.close_price = price
         position.end_time = timestamp
         self.trade_hist.append(position)
-        self.db.update_position(position.id, 'WIN' if position.result > 0 else 'LOSS')
+        position.save(self.db, ['status', 'close_price', 'end_time'])
         return position
     return None
 

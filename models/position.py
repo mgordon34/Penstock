@@ -2,22 +2,22 @@ from strenum import StrEnum
 
 class PositionStatus(StrEnum):
     OPEN = 'OPEN',
-    WIN = 'WIN',
-    LOSS = 'LOSS'
+    CLOSED = 'CLOSED'
 
 class Position(object):
     
     def __init__(self, db_instance, symbol, type, quantity, price, tp, sl, strategy,
-                 start_time, end_time=None, status=None, id=None):
+                 start_time, end_time=None, close_price=None, status=None, id=None):
         self.symbol = symbol
         self.type = type
         self.quantity = quantity
-        self.price = price
+        self.entry_price = price
         self.take_profit = tp
         self.stop_loss = sl
         self.strategy = strategy
         self.start_time = start_time
         self.end_time = end_time
+        self.close_price = close_price
         self.status = status if status else PositionStatus.OPEN
 
         if not db_instance:
@@ -32,19 +32,21 @@ class Position(object):
             self.symbol,
             self.type,
             self.quantity,
-            self.price,
+            self.entry_price,
             self.take_profit,
             self.stop_loss,
             self.strategy,
             self.start_time,
             self.end_time,
+            self.close_price,
             self.status.value,
         )
 
     def insert(self, db_instance):
-        sql = '''INSERT INTO positions(symbol, type, quantity, opening_price,
-            take_profit, stop_loss, strategy, start_time, end_time, status)
-            VALUES(?,?,?,?,?,?,?,?,?,?)'''
+        sql = '''INSERT INTO positions(symbol, type, quantity, entry_price,
+            take_profit, stop_loss, strategy, start_time, end_time, close_price,
+            status)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
         return db_instance.insert_model(sql, self.get_position_object())
 
     def save(self, db_instance, fields_changed):
