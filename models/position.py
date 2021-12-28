@@ -8,7 +8,7 @@ class PositionStatus(StrEnum):
 class Position(object):
     
     def __init__(self, db_instance, symbol, type, quantity, price, tp, sl, strategy,
-                 start_time, end_time=None, status=None):
+                 start_time, end_time=None, status=None, id=None, skip_insert=False):
         self.symbol = symbol
         self.type = type
         self.quantity = quantity
@@ -19,7 +19,13 @@ class Position(object):
         self.start_time = start_time
         self.end_time = end_time
         self.status = status if status else PositionStatus.OPEN
-        self.insert(db_instance)
+
+        if skip_insert:
+            if not id:
+                raise Exception('ID needed if skip_insert is active')
+            self.id = id
+        else:
+            self.id = self.insert(db_instance)
     
     def get_position_object(self):
         return (
@@ -38,22 +44,34 @@ class Position(object):
         sql = '''INSERT INTO positions(symbol, quantity, opening_price,
             take_profit, stop_loss, strategy, status, start_time, end_time)
             VALUES(?,?,?,?,?,?,?,?,?)'''
-        id = db_instance.insert_model(sql, self.get_position_object())
-        self.id = id
-        return id
+        return db_instance.insert_model(sql, self.get_position_object())
 
     def save(self, db_instance, fields_changed):
         sql = f'''UPDATE positions SET '''
-        sql += ', '.join(
-            [self.add_set_statement(field_name) for field_name in fields_changed]
-        )
+        sql += ', '.join([
+            add_filter(field_name, getattr(self, field_name))
+            for field_name in fields_changed
+        ])
         sql += f' where id={self.id}'
+        print(sql)
         return db_instance.update_model(sql)
 
-    def add_set_statement(self, field_name):
-        field_value = getattr(self, field_name)
-        if isinstance(field_value, StrEnum):
-            field_value = field_value.value
-        if type(field_value) == str:
-            field_value = f"'{field_value}'"
-        return f'{field_name}={field_value}'
+def get_open_positions(db_instance, filters=None):
+    sql = f'''SELECT * FROM positions'''
+    if filters:
+        sql += ''' WHERE '''
+        sql += ''' AND '''.join([
+            add_filter(filter_name, filters[filter_name]) for filter_name in filters
+        ])
+
+    cur = db_instance.conn.cursor()
+    print(f'get sql: {sql}')
+    cur.execute(sql)
+    return cur.fetchall()
+
+def add_filter(filter_name, filter_value):
+    if isinstance(filter_value, StrEnum):
+        filter_value = filter_value.value
+    if type(filter_value == str):
+        filter_value = f"'{filter_value}'"
+    return f'{filter_name}={filter_value}'
