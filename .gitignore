@@ -8,3 +8,6 @@ TODO.txt
 scratch.py
 etrade_token.json
 .vscode/
+
+*.pyc
+*.swp
