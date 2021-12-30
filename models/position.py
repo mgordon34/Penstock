@@ -58,13 +58,19 @@ class Position(object):
         sql += f' where id={self.id}'
         return db_instance.update_model(sql)
 
-def get_positions(db_instance, filters=None):
+def get_positions(db_instance, filters=None, start_time=None, end_time=None):
+    where_used = False
     sql = f'''SELECT * FROM positions'''
     if filters:
         sql += ''' WHERE '''
         sql += ''' AND '''.join([
             add_filter(filter_name, filters[filter_name]) for filter_name in filters
         ])
+        where_used = True
+    if start_time and end_time:
+        sql += ''' AND ''' if where_used else ''' WHERE '''
+        sql += f'''datetime(start_time) BETWEEN datetime('{start_time}') AND datetime('{end_time}')'''
+    sql +=  ''' ORDER BY datetime(start_time)'''
 
     cur = db_instance.conn.cursor()
     cur.execute(sql)
