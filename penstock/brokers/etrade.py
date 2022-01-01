@@ -12,7 +12,7 @@ import common.config as config
 log = logging.getLogger(__name__)
 
 class EtradeInterface(object):
-    def __init__(self, token_file_name, base_url, consumer_key, consumer_secret,
+    def __init__(self, base_url, consumer_key, consumer_secret,
                  account_id, account_type, institution_type):
         self.base_url = base_url
         self.account_id = account_id

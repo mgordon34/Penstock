@@ -22,7 +22,6 @@ if __name__ == '__main__':
         consumer_secret = config.etrade_sandbox_secret
 
     etrade = EtradeInterface(
-        config.etrade_token_file_name,
         base_url,
         consumer_key,
         consumer_secret,

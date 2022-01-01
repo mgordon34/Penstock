@@ -37,7 +37,6 @@ class TestEtrade:
             consumer_secret = config.etrade_sandbox_secret
 
         TestEtrade.etrade = EtradeInterface(
-            config.etrade_token_file_name,
             base_url,
             consumer_key,
             consumer_secret,
