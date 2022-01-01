@@ -35,7 +35,7 @@ class EtradeInterface(object):
 
         except FileNotFoundError:
             log.debug('No token file found, running oauth...')
-            self.session = self.oauth(token_file_name)
+            self.oauth(token_file_name)
 
     def oauth(self, token_file_name):
         etrade = OAuth1Service(

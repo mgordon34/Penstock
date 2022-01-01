@@ -112,6 +112,7 @@ def run():
     log.info('Profit: ${:,.2f}, {} winners and {} losers'.format(total_profit, total_winners, total_losers))
     quit()
 
-run_thread = threading.Thread(target=run)
-run_thread.start()
-app.run(host="0.0.0.0", port=6969)
+historical_run()
+# run_thread = threading.Thread(target=run)
+# run_thread.start()
+# app.run(host="0.0.0.0", port=6969)

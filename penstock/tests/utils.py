@@ -2,8 +2,8 @@ import os
 import shutil
 import sqlite3
 
-TEMPLATE_FILE = 'template_data.db'
-DB_FILE = 'test_data.db'
+TEMPLATE_FILE = '../data/template_data.db'
+DB_FILE = '../data/test_data.db'
 
 def setup_test_db():
     print('copying db')
