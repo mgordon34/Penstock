@@ -182,3 +182,6 @@ class EtradeInterface(object):
             print(f'problem found: {response.text}')
 
         return data
+
+    def place_order(self, order_detail):
+        return f'place order TBD'
