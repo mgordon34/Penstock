@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOME=/home/matt
-BINDIR=$HOME/git/stonks/
+BINDIR=$HOME/git/stonks/penstock
 VENVDIR=$HOME/git/stonks/.venv
 
 cd $BINDIR
